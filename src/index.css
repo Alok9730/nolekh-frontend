@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+html, body {
+  overScroll-behavior: none;
+  background-color: #233143;
+}
+
+.inter{
+  font-family: 'Inter', sans-serif;
+}
+
+.pop{
+  font-family: 'Poppins', sans-serif;
+}
+
+.roboto{
+  font-family:'Roboto', sans-serif;
+}
+
+.code-font {
+  font-family: 'Fira Code', monospace;
+}
