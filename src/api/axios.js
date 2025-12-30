@@ -1,8 +1,10 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+console.log(import.meta.env.VITE_API_BASE_URL)
+
 const instance = axios.create({
-    baseURL:import.meta.env.VITE_API_BASE_URL,
+    baseURL: import.meta.env.VITE_API_BASE_URL
 });
 
 
@@ -13,6 +15,7 @@ instance.interceptors.request.use((config) => {
   }
     return config
 });
+
 
 instance.interceptors.response.use((res) => res , (err)=> {
   if(err.response && (err.response.status === 401 || err.response.status === 403)){
