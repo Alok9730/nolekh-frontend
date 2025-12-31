@@ -1,7 +1,6 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-console.log(import.meta.env.VITE_API_BASE_URL)
 
 const instance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL

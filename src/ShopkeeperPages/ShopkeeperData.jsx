@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import DataOption from "../components/DataOption";
+import EditModel from "../components/EditModel";
 import AiVoice from "../components/AiVoice";
 import { CheckCheck, Clock } from "lucide-react";
 import toast from "react-hot-toast";
@@ -10,6 +11,9 @@ import LoadingSpinner from "../components/LoadingSpinner";
 function ShopkeeperData() {
   const [Data, setData] = useState([]);
   const [NoData, setNoData] = useState(false);
+  const [editEntry, setEditEntry] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   const { id, monthName } = useParams();
@@ -61,18 +65,40 @@ function ShopkeeperData() {
 
   const handlePaidField = async (entry) => {
     try {
-      setLoading(true)
+      setLoading(true);
       await axios.post("/shop/shopkeeper/updateStatus", {
         productEntryId: entry._id,
         status: "Paid",
       });
       fetchData();
-      toast.success("Marked as Paid");
+      toast.success("Hisab Paid successfully");
     } catch (err) {
       toast.error("Failed to update status");
-    }finally{
+    } finally {
       setLoading(false);
     }
+  };
+
+  const handleUnpaidFiled = async (entry) => {
+    try {
+      setLoading(true);
+      await axios.post("/shop/shopkeeper/updateStatus", {
+        productEntryId: entry._id,
+        status: "Unpaid",
+      });
+      fetchData();
+      toast.success("Hisab Unpaid successfully!");
+    } catch (err) {
+      toast.error("Failed to update status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditField = (entry) => {
+    console.log("edit", entry);
+    setEditEntry(entry);
+    setShowEditModal(true);
   };
 
   if (loading) return <LoadingSpinner />;
@@ -130,11 +156,12 @@ function ShopkeeperData() {
 
               <DataOption
                 onPaid={() => handlePaidField(entry)}
-                onUnpaid={() => console.log("Unpaid clicked", entry)}
-                onEdit={() => console.log("Edit clicked", entry)}
+                onUnpaid={() => handleUnpaidFiled(entry)}
+                onEdit={() => handleEditField(entry)}
                 onDelete={(dataToDelete) => handleDeleteField(dataToDelete)}
                 data={entry}
-                isPaid = {entry.status === 'Paid'}
+                isPaid={entry.status === "Paid"}
+
               />
             </div>
 
@@ -151,11 +178,18 @@ function ShopkeeperData() {
               ))}
             </div>
 
-            <div className="mt-3 text-right text-[16px] text-[#66FCF1] font-bold">
-              Total: ₹{entry.totalAmount}
+            <div className="mt-3 text-right text-[16px] text-[#06ec48] font-bold">
+              <span className="text-[#18c2b6] ">Total:</span> ₹{entry.totalAmount}
             </div>
           </div>
         ))
+      )}
+      {showEditModal && (
+        <EditModel
+          entry={editEntry}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={fetchData}
+        />
       )}
     </div>
   );
