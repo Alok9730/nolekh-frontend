@@ -3,7 +3,31 @@ import axios from "../api/axios";
 import LoadingSpinner from "./LoadingSpinner";
 import { Mic, BadgePlus } from "lucide-react";
 import toast from "react-hot-toast";
-import ManuallyDataEntry from "./ManuallyDataEntry"; 
+import ManuallyDataEntry from "./ManuallyDataEntry";
+
+
+const AI_LIMIT = 5;
+const WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+const STORAGE_KEY = "ai_voice_timestamps";
+
+function canMakeAiCall() {
+  const now = Date.now();
+  const stored = localStorage.getItem(STORAGE_KEY);
+  const timestamps = stored ? JSON.parse(stored) : [];
+
+  // keep only calls within last 5 minutes
+  const recentCalls = timestamps.filter(
+    (time) => now - time < WINDOW_MS
+  );
+
+  if (recentCalls.length >= AI_LIMIT) {
+    return false;
+  }
+
+  recentCalls.push(now);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(recentCalls));
+  return true;
+}
 
 function AiVoice({ customerId, monthName, onDataAdded }) {
   const [showVoiceModal, setShowVoiceModal] = useState(false);
@@ -12,12 +36,13 @@ function AiVoice({ customerId, monthName, onDataAdded }) {
   const [AiInput, setAiInput] = useState("");
   const recognitionRef = useRef(null);
 
+
   useEffect(() => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      toast.error("Sorry, voice feature not supported in this browser!");
+      toast.error("Voice feature not supported in this browser!");
       return;
     }
 
@@ -25,7 +50,6 @@ function AiVoice({ customerId, monthName, onDataAdded }) {
     recognition.continuous = false;
     recognition.interimResults = true;
     recognition.lang = "en-US";
-
 
     recognition.onend = () => {
       setShowVoiceModal(false);
@@ -44,6 +68,7 @@ function AiVoice({ customerId, monthName, onDataAdded }) {
     recognitionRef.current = recognition;
   }, []);
 
+
   useEffect(() => {
     if (AiInput) {
       const sendToAI = async () => {
@@ -54,21 +79,30 @@ function AiVoice({ customerId, monthName, onDataAdded }) {
             monthName,
             transcript: AiInput,
           });
+
           if (res) {
-            toast.success("Data Added successfully ✅");
+            toast.success("Data added successfully ✅");
             await onDataAdded();
           }
         } catch (err) {
-          toast.error(err?.response?.Data || "not added Data");
+          toast.error(
+            err?.response?.data?.message || "Failed to add data"
+          );
         } finally {
           setLoading(false);
         }
       };
+
       sendToAI();
     }
   }, [AiInput]);
 
   const handleAiVoice = () => {
+    if (!canMakeAiCall()) {
+      toast.error("Too many AI requests. Please wait 5 minutes.");
+      return;
+    }
+
     if (recognitionRef.current) {
       recognitionRef.current.start();
       setShowVoiceModal(true);
@@ -82,21 +116,25 @@ function AiVoice({ customerId, monthName, onDataAdded }) {
     setShowVoiceModal(false);
   };
 
+
   const handleManualSubmit = async ({ product, qty, rate }) => {
     try {
       setLoading(true);
-      const res = await axios.post(`/shop/shopkeeper/DataEntryManual`, {
+      await axios.post(`/shop/shopkeeper/DataEntryManual`, {
         customerId,
         monthName,
         product,
         qty,
         rate,
       });
+
       toast.success("Product added successfully ✅");
       await onDataAdded();
       setShowManualModal(false);
     } catch (err) {
-      toast.error(err?.response?.Data || "Error adding product");
+      toast.error(
+        err?.response?.data?.message || "Error adding product"
+      );
     } finally {
       setLoading(false);
     }
