@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 
 
 const instance = axios.create({
-    baseURL: "http://192.172.149.143:4000/"
+    baseURL: import.meta.env.VITE_API_BASE_URL
 });
 
 
