@@ -40,7 +40,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster position="bottom-left" reverseOrder={false} />
 
       <Routes>
         <Route path="/shopkeeper/login" element={<Login />} />

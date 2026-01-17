@@ -8,6 +8,7 @@ import { Mail, KeyRound } from "lucide-react";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const { fetchCustomers } = useCustomer();
   const navigate = useNavigate();
 
@@ -19,18 +20,21 @@ function Login() {
     }
 
     try {
+      setLoading(true);
       const res = await axios.post("/shop/shopkeeper/login", { email, password });
       const { token, userId, role } = res.data;
+
       localStorage.setItem("token", token);
       localStorage.setItem("userId", userId);
       localStorage.setItem("role", role);
-
       toast.success("Login successful");
       fetchCustomers();
       navigate("/Shopkeeper/CustomerList");
     } catch (err) {
       const msg = err.response?.data?.message || "Login failed";
       toast.error(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,7 +45,6 @@ function Login() {
           Welcome to <span className="text-[#66FCF1]">noLekh</span>
         </h2>
 
-    
         <div className="mb-6 relative group">
           <input
             type="email"
@@ -53,7 +56,6 @@ function Login() {
           <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-black" size={22} />
         </div>
 
-  
         <div className="mb-8 relative group">
           <input
             type="password"
@@ -67,9 +69,14 @@ function Login() {
 
         <button
           onClick={handleSubmit}
-          className="w-full py-3 font-semibold text-black rounded-lg bg-[#66FCF1] hover:bg-white hover:text-black transition duration-200 shadow-xl hover:shadow-[#66FCF1]/40"
+          disabled={loading}
+          className={`w-full py-3 font-semibold rounded-lg transition duration-200 shadow-xl
+            ${loading
+              ? "bg-[#66FCF1]/60 cursor-not-allowed"
+              : "bg-[#66FCF1] hover:bg-white hover:text-black hover:shadow-[#66FCF1]/40 text-black"
+            }`}
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
 
         <div className="mt-6 text-center text-sm text-white/60">
