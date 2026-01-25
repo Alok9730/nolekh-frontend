@@ -14,8 +14,17 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+ 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!email || !password) {
       toast.error("Please fill in all fields");
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
       return;
     }
 
@@ -27,6 +36,7 @@ function Login() {
       localStorage.setItem("token", token);
       localStorage.setItem("userId", userId);
       localStorage.setItem("role", role);
+
       toast.success("Login successful");
       fetchCustomers();
       navigate("/Shopkeeper/CustomerList");
@@ -53,7 +63,10 @@ function Login() {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-3 pr-12 rounded-lg bg-[#ffffff] text-black placeholder-black focus:outline-none ring-2 ring-transparent group-focus-within:ring-[#66FCF1] transition-all"
           />
-          <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-black" size={22} />
+          <Mail
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-black"
+            size={22}
+          />
         </div>
 
         <div className="mb-8 relative group">
@@ -64,16 +77,20 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-3 pr-12 rounded-lg bg-[#ffffff] text-black placeholder-black focus:outline-none ring-2 ring-transparent group-focus-within:ring-[#66FCF1] transition-all"
           />
-          <KeyRound className="absolute right-4 top-1/2 -translate-y-1/2 text-black" size={22} />
+          <KeyRound
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-black"
+            size={22}
+          />
         </div>
 
         <button
           onClick={handleSubmit}
           disabled={loading}
           className={`w-full py-3 font-semibold rounded-lg transition duration-200 shadow-xl
-            ${loading
-              ? "bg-[#66FCF1]/60 cursor-not-allowed"
-              : "bg-[#66FCF1] hover:bg-white hover:text-black hover:shadow-[#66FCF1]/40 text-black"
+            ${
+              loading
+                ? "bg-[#66FCF1]/60 cursor-not-allowed"
+                : "bg-[#66FCF1] hover:bg-white hover:text-black hover:shadow-[#66FCF1]/40 text-black"
             }`}
         >
           {loading ? "Logging in..." : "Login"}

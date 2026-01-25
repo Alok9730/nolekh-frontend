@@ -23,10 +23,38 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const { username, email, phone, password } = formData;
+
+    const usernameRegex = /^[A-Za-z ]{3,20}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[6-9]\d{9}$/;
+    const passwordRegex = /^.{8,}$/;
 
     if (!username || !email || !phone || !password) {
       toast.error("Please fill all fields");
+      return;
+    }
+
+    if (!usernameRegex.test(username)) {
+      toast.error("Username must be 3–20 letters only");
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email");
+      return;
+    }
+
+    if (!phoneRegex.test(phone)) {
+      toast.error("Enter a valid 10-digit Indian mobile number");
+      return;
+    }
+
+    if (!passwordRegex.test(password)) {
+      toast.error(
+        "Password must be 8+ chars, include uppercase, lowercase, number & special character"
+      );
       return;
     }
 
@@ -101,7 +129,6 @@ function SignUp() {
         >
           Signup
         </button>
-
 
         <div className="mt-6 text-center text-sm text-white/60">
           Already have an account?{" "}
